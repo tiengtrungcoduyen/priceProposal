@@ -99,7 +99,10 @@ export function QuoteForm() {
         const text = await response.text();
         const data = JSON.parse(text);
         const materialsFromApi = data.map((m: any) => ({
-          ...m,
+          id: m.id,
+          name: m.name ?? '',
+          unit: m.unit ?? '',
+          quantity: Number(m.quantity ?? 0),
           price: 0,
           total: 0,
           note: m.Remark || '',
