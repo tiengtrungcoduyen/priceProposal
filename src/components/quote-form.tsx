@@ -134,10 +134,23 @@ export function QuoteForm() {
 
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true);
-    const submissionData = {
+    
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const timeStamp = `${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${now.getFullYear()}@${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+
+    const quoteData = {
         ...data,
         materials: data.materials.map(m => ({...m, total: m.quantity * m.price})),
         totalQuote,
+    };
+
+    const submissionData = {
+        type: 'appendBidResult',
+        payload: {
+            ...quoteData,
+            timeStamp,
+        }
     };
 
     try {
@@ -277,11 +290,12 @@ export function QuoteForm() {
                   <TableFooter>
                     <TableRow>
                       <TableCell colSpan={5} className="hidden sm:table-cell" />
-                      <TableCell colSpan={3} className="sm:hidden" />
+                      <TableCell colSpan={2} className="sm:hidden" />
                       <TableCell className="text-right font-bold text-lg">Tổng cộng</TableCell>
                       <TableCell className="text-right font-bold text-primary text-lg">
                         {currencyFormatter.format(totalQuote)}
                       </TableCell>
+                      <TableCell/>
                     </TableRow>
                   </TableFooter>
                 </Table>
