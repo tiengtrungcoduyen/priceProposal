@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFieldArray, useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -105,7 +105,8 @@ export function QuoteForm() {
           note: m.Remark || '',
         }));
 
-        form.reset({ materials: materialsFromApi });
+        const currentBidderName = form.getValues('bidderName');
+        form.reset({ bidderName: currentBidderName, materials: materialsFromApi });
       } catch (error: any) {
         toast({
           variant: 'destructive',
@@ -126,13 +127,10 @@ export function QuoteForm() {
 
   const watchedMaterials = form.watch('materials');
 
-  const totalQuote = useMemo(() => {
-    if (!watchedMaterials) return 0;
-    return watchedMaterials.reduce(
-      (acc, current) => acc + (current.quantity || 0) * (current.price || 0),
-      0
-    );
-  }, [watchedMaterials]);
+  const totalQuote = (watchedMaterials || []).reduce(
+    (acc, current) => acc + (current.quantity || 0) * (current.price || 0),
+    0
+  );
 
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true);
@@ -165,7 +163,7 @@ export function QuoteForm() {
         description: 'Báo giá của bạn đã được gửi đi.',
       });
       
-      const materials = form.getValues('materials').map(m => ({...m, price: 0, note: m.note}));
+      const materials = form.getValues('materials').map(m => ({...m, price: 0}));
       form.reset({
           bidderName: data.bidderName,
           materials
