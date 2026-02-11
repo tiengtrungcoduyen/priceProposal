@@ -141,7 +141,7 @@ export function QuoteForm() {
     
     const now = new Date();
     const pad = (n: number) => n.toString().padStart(2, '0');
-    const timeStamp = `${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${now.getFullYear()}@${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    const timeStamp = `${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${now.getFullYear()}@${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
     const submissionData = {
         type: 'appendBidResult',
