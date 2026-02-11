@@ -87,7 +87,7 @@ export function QuoteForm() {
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'text/plain',
           },
           body: JSON.stringify({ type: 'getRequestData', payload: undefined }),
         });
@@ -96,7 +96,8 @@ export function QuoteForm() {
           throw new Error('Không thể tải danh sách vật tư.');
         }
 
-        const data = await response.json();
+        const text = await response.text();
+        const data = JSON.parse(text);
         const materialsFromApi = data.map((m: any) => ({
           ...m,
           price: 0,
@@ -149,7 +150,7 @@ export function QuoteForm() {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
         body: JSON.stringify(submissionData),
       });
