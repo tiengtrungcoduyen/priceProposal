@@ -152,7 +152,7 @@ export function QuoteForm() {
             timeStamp,
         }
     };
-
+console.log (submissionData)
     try {
       const apiUrl = process.env.NEXT_PUBLIC_APP_URL;
       if (!apiUrl) {
@@ -167,14 +167,22 @@ export function QuoteForm() {
         body: JSON.stringify(submissionData),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Không thể đọc nội dung phản hồi lỗi.');
-        throw new Error(`Yêu cầu gửi báo giá không thành công. Máy chủ trả về lỗi: ${errorText || response.statusText}`);
+      const responseText = await response.text();
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error(`Phản hồi từ máy chủ không hợp lệ: ${responseText}`);
+      }
+      
+      if (!response.ok || !responseData.success) {
+        const errorMsg = responseData.error || responseText || 'Lỗi không xác định từ máy chủ.';
+        throw new Error(`Gửi báo giá không thành công: ${errorMsg}`);
       }
       
       toast({
         title: 'Thành công!',
-        description: 'Báo giá của bạn đã được gửi đi.',
+        description: 'Đã gửi báo giá thành công.',
       });
       
       const materials = form.getValues('materials').map(m => ({...m, price: 0}));
