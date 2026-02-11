@@ -164,7 +164,8 @@ export function QuoteForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Yêu cầu gửi báo giá không thành công.');
+        const errorText = await response.text().catch(() => 'Không thể đọc nội dung phản hồi lỗi.');
+        throw new Error(`Yêu cầu gửi báo giá không thành công. Máy chủ trả về lỗi: ${errorText || response.statusText}`);
       }
       
       toast({
