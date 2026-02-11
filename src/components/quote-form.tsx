@@ -97,8 +97,12 @@ export function QuoteForm() {
     };
 
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch('https://api.example.com/submit-quote', {
+      const apiUrl = process.env.NEXT_PUBLIC_APP_URL;
+      if (!apiUrl) {
+        throw new Error("Vui lòng định cấu hình NEXT_PUBLIC_APP_URL trong tệp .env.local của bạn.");
+      }
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +111,7 @@ export function QuoteForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok.');
+        throw new Error('Yêu cầu gửi báo giá không thành công.');
       }
       
       toast({
@@ -116,12 +120,12 @@ export function QuoteForm() {
       });
       form.reset();
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submission failed:', error);
       toast({
         variant: 'destructive',
         title: 'Lỗi!',
-        description: 'Không thể gửi báo giá. Vui lòng thử lại. (Lưu ý: đây là chức năng giả lập)',
+        description: error.message || 'Không thể gửi báo giá. Vui lòng thử lại.',
       });
     } finally {
       setIsSubmitting(false);
