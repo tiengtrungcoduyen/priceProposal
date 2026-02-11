@@ -127,6 +127,7 @@ export function QuoteForm() {
   const watchedMaterials = form.watch('materials');
 
   const totalQuote = useMemo(() => {
+    if (!watchedMaterials) return 0;
     return watchedMaterials.reduce(
       (acc, current) => acc + (current.quantity || 0) * (current.price || 0),
       0
@@ -164,7 +165,7 @@ export function QuoteForm() {
         description: 'Báo giá của bạn đã được gửi đi.',
       });
       
-      const materials = form.getValues('materials').map(m => ({...m, price: 0, note: ''}));
+      const materials = form.getValues('materials').map(m => ({...m, price: 0, note: m.note}));
       form.reset({
           bidderName: data.bidderName,
           materials
@@ -212,7 +213,7 @@ export function QuoteForm() {
           <CardHeader>
             <CardTitle>Danh sách vật tư</CardTitle>
             <CardDescription>
-              Nhập đơn giá cho từng loại vật tư. Tổng tiền sẽ được tự động tính toán.
+              Nhập đơn giá cho từng loại vật tư. Thành tiền và tổng cộng sẽ được tự động tính toán.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -227,19 +228,24 @@ export function QuoteForm() {
                     <TableRow>
                       <TableHead className="w-[40px] hidden sm:table-cell">STT</TableHead>
                       <TableHead>Tên vật tư</TableHead>
+                      <TableHead className="hidden sm:table-cell">Đơn vị</TableHead>
                       <TableHead className="text-right">Số lượng</TableHead>
-                      <TableHead className="hidden sm:table-cell text-right">Đơn vị</TableHead>
                       <TableHead className="w-[150px] text-right">Đơn giá (VNĐ)</TableHead>
+                      <TableHead className="w-[150px] text-right">Thành tiền (VNĐ)</TableHead>
                       <TableHead className="w-[180px]">Ghi chú</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {fields.map((field, index) => (
+                    {fields.map((field, index) => {
+                      const material = watchedMaterials?.[index];
+                      const itemTotal = (material?.price || 0) * (material?.quantity || 0);
+
+                      return (
                         <TableRow key={field.id}>
                           <TableCell className="font-medium hidden sm:table-cell">{index + 1}</TableCell>
                           <TableCell className="font-medium">{field.name}</TableCell>
+                          <TableCell className="hidden sm:table-cell">{field.unit}</TableCell>
                           <TableCell className="text-right">{field.quantity.toLocaleString('vi-VN')}</TableCell>
-                          <TableCell className="hidden sm:table-cell text-right">{field.unit}</TableCell>
                           <TableCell>
                             <FormField
                               control={form.control}
@@ -262,31 +268,19 @@ export function QuoteForm() {
                               )}
                             />
                           </TableCell>
-                          <TableCell>
-                            <FormField
-                              control={form.control}
-                              name={`materials.${index}.note`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="Nhập ghi chú..."
-                                      {...field}
-                                      value={field.value ?? ''}
-                                    />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
+                          <TableCell className="text-right font-medium">
+                            {currencyFormatter.format(itemTotal)}
                           </TableCell>
+                          <TableCell>{field.note ?? ''}</TableCell>
                         </TableRow>
                       )
-                    )}
+                    })}
                   </TableBody>
                   <TableFooter>
                     <TableRow>
-                      <TableCell colSpan={4} className="hidden sm:table-cell"></TableCell>
-                      <TableCell colSpan={1} className="sm:col-span-1 text-right font-bold text-lg">Tổng cộng</TableCell>
+                      <TableCell colSpan={5} className="hidden sm:table-cell" />
+                      <TableCell colSpan={3} className="sm:hidden" />
+                      <TableCell className="text-right font-bold text-lg">Tổng cộng</TableCell>
                       <TableCell className="text-right font-bold text-primary text-lg">
                         {currencyFormatter.format(totalQuote)}
                       </TableCell>
