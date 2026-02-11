@@ -133,6 +133,7 @@ export function QuoteForm() {
   );
 
   async function onSubmit(data: FormValues) {
+    console.log('Gửi báo giá');
     setIsSubmitting(true);
     
     const now = new Date();
@@ -191,9 +192,18 @@ export function QuoteForm() {
     }
   }
 
+  const onInvalid = (errors: any) => {
+    console.error('Lỗi xác thực biểu mẫu:', errors);
+    toast({
+        variant: 'destructive',
+        title: 'Lỗi xác thực!',
+        description: 'Vui lòng kiểm tra lại các trường đã nhập. Có vẻ như có một lỗi.',
+    });
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-8">
         <Card>
           <CardHeader>
             <CardTitle>Thông tin nhà thầu</CardTitle>
@@ -272,6 +282,7 @@ export function QuoteForm() {
                                       }}
                                     />
                                   </FormControl>
+                                  <FormMessage />
                                 </FormItem>
                               )}
                             />
