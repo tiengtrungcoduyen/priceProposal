@@ -5,4 +5,5 @@ export interface Material {
   quantity: number;
   price: number;
   total: number;
+  note?: string;
 }
