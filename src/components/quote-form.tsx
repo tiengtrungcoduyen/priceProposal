@@ -102,7 +102,7 @@ export function QuoteForm() {
           ...m,
           price: 0,
           total: 0,
-          note: m.note || '',
+          note: m.Remark || '',
         }));
 
         form.reset({ materials: materialsFromApi });
