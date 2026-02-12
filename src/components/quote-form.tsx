@@ -45,8 +45,8 @@ const formSchema = z.object({
       unit: z.string(),
       quantity: z.number(),
       price: z.preprocess(
-        (val) => (val === '' ? 0 : Number(val)),
-        z.number().min(0, { message: 'Giá phải là số dương.' })
+        (val) => (val === '' || val === null || val === undefined ? null : Number(val)),
+        z.number().nullable().default(null)
       ),
       total: z.number(),
       note: z.string().optional(),
@@ -103,7 +103,7 @@ export function QuoteForm() {
           name: m.name ?? '',
           unit: m.unit ?? '',
           quantity: Number(m.quantity ?? 0),
-          price: 0,
+          price: null,
           total: 0,
           note: m.Remark || '',
         }));
@@ -147,7 +147,7 @@ export function QuoteForm() {
         type: 'appendBidResult',
         payload: {
             bidderName: data.bidderName,
-            materials: data.materials.map(m => ({...m, total: m.quantity * m.price})),
+            materials: data.materials.map(m => ({...m, price: m.price || 0, total: m.quantity * (m.price || 0)})),
             totalQuote,
             timeStamp,
         }
@@ -185,7 +185,7 @@ console.log (submissionData)
         description: 'Đã gửi báo giá thành công.',
       });
       
-      const materials = form.getValues('materials').map(m => ({...m, price: 0}));
+      const materials = form.getValues('materials').map(m => ({...m, price: null}));
       form.reset({
           bidderName: data.bidderName,
           materials
@@ -283,13 +283,18 @@ console.log (submissionData)
                                 <FormItem>
                                   <FormControl>
                                     <Input
-                                      type="number"
+                                      type="text"
                                       className="text-right"
                                       placeholder="0"
-                                      min="0"
                                       {...field}
+                                      value={field.value !== null && field.value !== undefined ? new Intl.NumberFormat('vi-VN').format(field.value) : ''}
                                       onChange={(e) => {
-                                          field.onChange(e.target.valueAsNumber || 0);
+                                        const numericString = e.target.value.replace(/\D/g, '');
+                                        if (numericString === '') {
+                                          field.onChange(null);
+                                        } else {
+                                          field.onChange(Number(numericString));
+                                        }
                                       }}
                                     />
                                   </FormControl>
